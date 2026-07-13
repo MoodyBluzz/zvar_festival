@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZVAR — Cross-cultural Industrial Festival / Cologne 2027</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Unbounded:wght@200;400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lime: #c8f23b;
+    --lime-dim: rgba(200,242,59,0.12);
+    --lime-border: rgba(200,242,59,0.3);
+    --white: #f5f5f0;
+    --grey: #a0a090;
+    --dark: #0a0a08;
+    --card: rgba(255,255,250,0.03);
+    --card-border: rgba(255,255,250,0.08);
+    --card-hover: rgba(255,255,250,0.06);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .glow-topleft {
+    position: fixed; top: -200px; left: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(200,242,59,0.12) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+    animation: pulse 8s ease-in-out infinite alternate;
+  }
+  .glow-bottomright {
+    position: fixed; bottom: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
+
+  .site-wrapper {
+    position: relative; z-index: 1;
+    max-width: 1400px; margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--card-border);
+    background: rgba(10,10,8,0.8);
+    backdrop-filter: blur(20px);
+  }
+  .nav-logo {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 0.05em;
+    color: var(--lime);
+  }
+  .nav-info {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--grey);
+  }
+  .nav-date {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--grey);
+  }
+
+  section {
+    min-height: 100vh;
+    padding: 160px 0 100px;
+    border-bottom: 1px solid var(--card-border);
+    display: flex; flex-direction: column; justify-content: center;
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  section.visible { opacity: 1; transform: translateY(0); }
+
+  .section-num {
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 20px;
+  }
+
+  h1.section-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: clamp(52px, 8vw, 120px);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  h2.section-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: clamp(36px, 5.5vw, 80px);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .section-sub {
+    margin-top: 20px;
+    font-size: 16px;
+    color: var(--grey);
+    letter-spacing: 0.05em;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 36px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .card:hover {
+    background: var(--card-hover);
+    border-color: rgba(255,255,250,0.14);
+  }
+  .card-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--grey);
+    margin-bottom: 18px;
+  }
+  .card-label.lime { color: var(--lime); }
+  .card-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: rgba(255,255,250,0.06);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .card h3 {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.01em;
+    margin-bottom: 14px;
+  }
+  .card p {
+    font-size: 14px;
+    color: #c0c0b0;
+    line-height: 1.7;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    nav { padding: 16px 20px; }
+    .site-wrapper { padding: 0 20px; }
+  }
+
+  #hero { min-height: 100vh; padding-top: 120px; }
+  .hero-tagline {
+    font-size: 18px;
+    color: #b8b8a8;
+    max-width: 700px;
+    line-height: 1.7;
+    margin-top: 40px;
+    margin-bottom: 48px;
+  }
+  .tags-row {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin-top: 48px;
+  }
+  .tag {
+    padding: 10px 22px;
+    border-radius: 100px;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--grey);
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .tag:hover { border-color: rgba(255,255,250,0.2); color: var(--white); }
+  .tag.lime {
+    border-color: var(--lime-border);
+    background: var(--lime-dim);
+    color: var(--lime);
+  }
+
+  .timeline-item {
+    display: flex; gap: 48px; align-items: flex-start;
+    border-left: 1px solid var(--card-border);
+    padding: 20px 0 20px 36px;
+    transition: border-color 0.3s;
+  }
+  .timeline-item:hover { border-color: var(--lime-border); }
+  .tl-date {
+    min-width: 160px;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--grey);
+    padding-top: 4px;
+  }
+  .tl-text {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    color: var(--white);
+    line-height: 1.4;
+  }
+  .tl-text.highlight { color: var(--lime); }
+
+  .schedule-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 32px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    transition: background 0.3s, border-color 0.3s;
+    cursor: default;
+  }
+  .schedule-item:hover {
+    background: var(--card-hover);
+    border-color: rgba(255,255,250,0.14);
+  }
+  .sch-time {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--grey);
+    min-width: 140px;
+  }
+  .sch-text {
+    font-size: 16px;
+    color: var(--white);
+    text-align: right;
+    max-width: 700px;
+    line-height: 1.4;
+  }
+
+  .music-main {
+    background: linear-gradient(135deg, rgba(255,255,250,0.06) 0%, var(--card) 100%);
+  }
+  .music-highlight {
+    background: linear-gradient(135deg, var(--lime-dim) 0%, var(--card) 100%);
+    border-color: var(--lime-border) !important;
+  }
+  .artist-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .postman-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 20px;
+    padding: 10px 22px;
+    border-radius: 100px;
+    border: 1px solid var(--card-border);
+    background: rgba(255,255,250,0.05);
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .postman-btn:hover {
+    border-color: rgba(255,255,250,0.25);
+    background: rgba(255,255,250,0.09);
+    transform: translateY(-1px);
+  }
+  .postman-btn svg { width: 14px; height: 14px; opacity: 0.6; }
+
+  .media-tag {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-top: 28px;
+  }
+
+  .zone-label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 20px;
+  }
+
+  .partners-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 48px; }
+  .partner-btn {
+    padding: 12px 28px;
+    border-radius: 100px;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    color: var(--white);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .partner-btn:hover {
+    background: var(--card-hover);
+    border-color: rgba(255,255,250,0.18);
+    transform: translateY(-2px);
+  }
+  .partner-btn .arrow {
+    font-size: 12px;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all 0.2s;
+  }
+  .partner-btn:hover .arrow {
+    opacity: 0.5;
+    transform: translateX(0);
+  }
+
+  .budget-table {
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    overflow: hidden;
+    margin-top: 48px;
+  }
+  .budget-header {
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding: 20px 40px;
+    background: rgba(255,255,250,0.04);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--grey);
+    border-bottom: 1px solid var(--card-border);
+  }
+  .budget-header div:last-child { text-align: right; }
+  .budget-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding: 20px 40px;
+    border-top: 1px solid rgba(255,255,250,0.04);
+    font-size: 18px;
+    transition: background 0.2s;
+  }
+  .budget-row:hover { background: rgba(255,255,250,0.02); }
+  .budget-row .val { text-align: right; color: var(--lime); }
+  .budget-total {
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding: 24px 40px;
+    border-top: 1px solid var(--card-border);
+    background: var(--lime-dim);
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .budget-total .val { text-align: right; color: var(--lime); }
+
+  .price-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    background: rgba(200,242,59,0.06);
+    border: 1px solid var(--lime-border);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--lime);
+    vertical-align: middle;
+    margin-left: 12px;
+    position: relative;
+    top: -2px;
+  }
+  .price-badge::before {
+    content: '⚡';
+    font-size: 11px;
+  }
+
+  .planb-old {
+    text-decoration: line-through;
+    color: var(--grey);
+  }
+  .planb-new {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--lime);
+  }
+  .planb-arrow { color: var(--grey); margin: 0 12px; }
+
+  .optimization-list {
+    list-style: none;
+    margin-top: 24px;
+  }
+  .optimization-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 16px;
+    color: #c0c0b0;
+    line-height: 1.6;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,250,0.04);
+  }
+  .optimization-list li::before {
+    content: '—';
+    color: var(--lime);
+    flex-shrink: 0;
+  }
+
+  .charity-pct {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 14vw, 160px);
+    color: var(--lime);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin-top: 40px;
+    animation: flicker 6s infinite;
+  }
+  @keyframes flicker {
+    0%, 96%, 100% { opacity: 1; }
+    97% { opacity: 0.85; }
+    98% { opacity: 1; }
+    99% { opacity: 0.9; }
+  }
+
+  .bgk-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    margin-top: 28px;
+    padding: 14px 28px;
+    border-radius: 100px;
+    border: 1px solid var(--lime-border);
+    background: var(--lime-dim);
+    color: var(--lime);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .bgk-btn:hover {
+    background: rgba(200,242,59,0.2);
+    transform: translateY(-2px);
+  }
+
+  #finale {
+    min-height: 80vh;
+    text-align: center;
+    align-items: center;
+  }
+  .finale-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(100px, 18vw, 240px);
+    line-height: 0.9;
+    color: var(--white);
+    letter-spacing: 0.02em;
+    animation: glitch 8s infinite;
+  }
+  @keyframes glitch {
+    0%, 92%, 100% { text-shadow: none; }
+    93% { text-shadow: 3px 0 var(--lime), -3px 0 rgba(255,255,255,0.3); }
+    94% { text-shadow: -3px 0 var(--lime), 3px 0 rgba(255,255,255,0.3); }
+    95% { text-shadow: none; }
+    96% { text-shadow: 2px 2px var(--lime); }
+    97% { text-shadow: none; }
+  }
+  .finale-sub {
+    margin-top: 28px;
+    font-size: 17px;
+    color: var(--grey);
+    max-width: 600px;
+    line-height: 1.7;
+  }
+
+  footer {
+    position: relative; z-index: 1;
+    padding: 60px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--card-border);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey);
+  }
+
+  .spacer { margin-top: 56px; }
+
+  .scroll-hint {
+    position: fixed; bottom: 32px; right: 40px; z-index: 50;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--grey); opacity: 0.5;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--grey), transparent);
+    animation: scroll-anim 2s ease-in-out infinite;
+  }
+  @keyframes scroll-anim {
+    0%, 100% { transform: scaleY(1); opacity: 0.5; }
+    50% { transform: scaleY(0.6); opacity: 0.2; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-topleft"></div>
+<div class="glow-bottomright"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">ZVAR</div>
+  <div class="nav-info">Cologne · 2027</div>
+  <div class="nav-date">Odonien</div>
+</nav>
+
+<div class="scroll-hint">
+  <span>scroll</span>
+  <div class="scroll-line"></div>
+</div>
+
+<div class="site-wrapper">
+
+  <!-- 01 HERO -->
+  <section id="hero">
+    <div class="section-num">01 — Overview</div>
+    <h1 class="section-title">ZVAR</h1>
+    <p class="hero-tagline">
+      A one-day interdisciplinary festival-constructor connecting progressive Ukrainian youth culture with the German creative scene.
+    </p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Concept</div>
+        <p>Kyiv urban aesthetics meets raw German industrial architecture. Panels, zines, streetwear, live music, design, food culture and cross-cultural electronic music — fused into one living ecosystem.</p>
+      </div>
+      <div class="card">
+        <div class="card-label">Mission</div>
+        <p>Build an intellectual and cultural bridge between Ukraine and Germany through independent media, contemporary art, youth communities and charity.</p>
+      </div>
+    </div>
+
+    <div class="tags-row">
+      <div class="tag">Odonien</div>
+      <div class="tag">Cologne</div>
+      <div class="tag">March 2027</div>
+      <div class="tag lime">100% Donations → Ukraine</div>
+    </div>
+  </section>
+
+  <!-- 02 ARCHITECTURE -->
+  <section id="architecture">
+    <div class="section-num">02 — Indoor Festival Architecture</div>
+    <h2 class="section-title">Designed for<br>Raw March Weather</h2>
+    <p class="section-sub">Open-space warehouse layout / dynamic zones</p>
+
+    <div class="grid-2 spacer">
+      <div class="card">
+        <div class="card-num">01</div>
+        <h3>Main Warehouse Stage</h3>
+        <p>Daytime panels, screenings, live talks and the evening music program in a raw, cohesive industrial hangar setup.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <h3>Curated Market Area</h3>
+        <p>20–25 independent fashion labels, art books, zines, tattoo studio and design objects arranged openly inside the main space.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <h3>Industrial Concept Bar</h3>
+        <p>Minimalist bar area featuring Ukrainian infusions, specialized tea, coffee and an open networking atmosphere.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">04</div>
+        <h3>Interactive Tech Zone</h3>
+        <p>FPV drone flight simulators and digital installations integrated seamlessly into the warehouse architecture.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 TIMELINE -->
+  <section id="timeline">
+    <div class="section-num">03 — Timeline</div>
+    <h2 class="section-title">2026 → 2027</h2>
+
+    <div class="spacer">
+      <div class="timeline-item">
+        <div class="tl-date">Sep 2026</div>
+        <div class="tl-text">Kulturamt Köln grant application submitted</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">Oct–Dec 2026</div>
+        <div class="tl-text">Pitching phase / letters of intent / artist & media outreach</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">Dec 2026</div>
+        <div class="tl-text">Official grant approval / project activation</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">Jan–Feb 2027</div>
+        <div class="tl-text">Identity design, promotion launch, logistics and booking</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">March 2027</div>
+        <div class="tl-text highlight">Final sprint + festival execution</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">Apr–Jul 2027</div>
+        <div class="tl-text">Aftermovie, donation transfer and financial reporting</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 FESTIVAL DAY FLOW -->
+  <section id="dayflow">
+    <div class="section-num">04 — Festival Day Flow</div>
+    <h2 class="section-title">Intellectual Daytime<br>→ Night Finale</h2>
+
+    <div class="spacer" style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="schedule-item">
+        <div class="sch-time">09:00–12:00</div>
+        <div class="sch-text">Setup & preparation / technical check / market installation</div>
+      </div>
+      <div class="schedule-item">
+        <div class="sch-time">12:00</div>
+        <div class="sch-text">Doors open / market + bar + ambient selectors</div>
+      </div>
+      <div class="schedule-item">
+        <div class="sch-time">13:00–14:30</div>
+        <div class="sch-text">Urbanism & visual culture panel / zine presentations</div>
+      </div>
+      <div class="schedule-item">
+        <div class="sch-time">15:00–16:30</div>
+        <div class="sch-text">Modern European identity & cultural heritage lecture</div>
+      </div>
+      <div class="schedule-item">
+        <div class="sch-time">17:00–18:30</div>
+        <div class="sch-text">Live acoustic indie performance</div>
+      </div>
+      <div class="schedule-item">
+        <div class="sch-time">18:30–19:30</div>
+        <div class="sch-text">Networking / browsing / signings / donations</div>
+      </div>
+      <div class="schedule-item" style="border-color: var(--lime-border); background: var(--lime-dim);">
+        <div class="sch-time" style="color: var(--lime);">19:30–22:00</div>
+        <div class="sch-text">Cross-cultural B2B electronic finale</div>
+      </div>
+      <div class="schedule-item">
+        <div class="sch-time">22:00</div>
+        <div class="sch-text">Curfew / dismantling</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 MUSIC -->
+  <section id="music">
+    <div class="section-num">05 — Music Curation</div>
+    <h2 class="section-title">Flexible Lineup<br>Strategy</h2>
+    <p class="section-sub">Low-risk European booking approach</p>
+
+    <div class="grid-2 spacer">
+      <div class="card music-main">
+        <div class="card-label">Daytime Live Stage</div>
+        <div class="artist-name">Postman</div>
+        <p>Acoustic indie-folk performance aligned with the intellectual daytime atmosphere. Alternative options include European-based Ukrainian indie acts and Cologne/Berlin resident artists.</p>
+        <a href="https://www.instagram.com/postmansings/" target="_blank" rel="noopener" class="postman-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Instagram
+        </a>
+      </div>
+      <div class="card music-highlight">
+        <div class="card-label lime">Evening Highlight</div>
+        <div class="artist-name">UA × DE<br>B2B DJ Set</div>
+        <p>Ukrainian electronic collectives collaborating live with Cologne / Düsseldorf selectors. Industrial club energy with a strong cultural exchange narrative.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 MEDIA CO-PRODUCTION -->
+  <section id="media">
+    <div class="section-num">06 — Media Co-Production</div>
+    <h2 class="section-title">Not Just a Festival</h2>
+    <p class="section-sub">A collaborative content ecosystem</p>
+
+    <div class="grid-3 spacer">
+      <div class="card">
+        <div class="card-num">01</div>
+        <h3>DTF × Köln Art Hubs</h3>
+        <p>Visual culture panels, zines, urban aesthetics and independent publishing.</p>
+        <div class="media-tag">Cross-cultural content production</div>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <h3>The Ukrainians × NRW Journalists</h3>
+        <p>Identity, modernism and cultural heritage discussions.</p>
+        <div class="media-tag">Cross-cultural content production</div>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <h3>Fashion & Streetwear Curation</h3>
+        <p>Independent Ukrainian labels presented next to local German student projects.</p>
+        <div class="media-tag">Cross-cultural content production</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 MARKET -->
+  <section id="market">
+    <div class="section-num">07 — Curated Market Experience</div>
+    <h2 class="section-title">Books / Fashion<br>/ Design / Gaming</h2>
+
+    <div class="grid-4 spacer">
+      <div class="card">
+        <div class="zone-label">Zone 1</div>
+        <h3>Books & Zines</h3>
+        <p>IST Publishing, art books, independent media, Cologne student zines.</p>
+      </div>
+      <div class="card">
+        <div class="zone-label">Zone 2</div>
+        <h3>Streetwear</h3>
+        <p>Selected Ukrainian and German labels with industrial aesthetics.</p>
+      </div>
+      <div class="card">
+        <div class="zone-label">Zone 3</div>
+        <h3>Modern Craft</h3>
+        <p>Ceramics, accessories and contemporary reinterpretations of heritage.</p>
+      </div>
+      <div class="card">
+        <div class="zone-label">Zone 4</div>
+        <h3>Interactive</h3>
+        <p>FPV simulator, flash tattoos, DIY customization station.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 PARTNERS -->
+  <section id="partners">
+    <div class="section-num">08 — Ideal Partners & Invited Brands</div>
+    <h2 class="section-title">Aspirational<br>Collaboration<br>Ecosystem</h2>
+
+    <div class="partners-grid">
+      <a href="#" class="partner-btn">IST Publishing <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Riot Division <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Syndicate <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Gunia Project <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">CHER'17 <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Finch <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Walther König <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Live Fast Die Young <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Red Bull <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Nova Poshta <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Independent Media <span class="arrow">↗</span></a>
+      <a href="#" class="partner-btn">Local NRW Creatives <span class="arrow">↗</span></a>
+    </div>
+  </section>
+
+  <!-- 09 BUDGET -->
+  <section id="budget">
+    <div class="section-num">09 — Official Budget</div>
+    <h2 class="section-title">Kulturamt<br>Proposal</h2>
+
+    <div class="budget-table">
+      <div class="budget-header">
+        <div>Category</div>
+        <div>Amount</div>
+      </div>
+      <div class="budget-row"><div>Project Management</div><div class="val">€3,500</div></div>
+      <div class="budget-row"><div>Production Assistant</div><div class="val">€1,000</div></div>
+      <div class="budget-row"><div>Venue + Technical Setup</div><div class="val">€5,500</div></div>
+      <div class="budget-row"><div>Logistics & Delivery</div><div class="val">€2,500</div></div>
+      <div class="budget-row"><div>Artists & Speakers</div><div class="val">€3,500</div></div>
+      <div class="budget-row"><div>Marketing & Design</div><div class="val">€2,000</div></div>
+      <div class="budget-row"><div>Security</div><div class="val">€1,000</div></div>
+      <div class="budget-row"><div>Reserve</div><div class="val">€800</div></div>
+      <div class="budget-total">
+        <div>Total<span class="price-badge">limited</span></div>
+        <div class="val">€19,800</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 PLAN B -->
+  <section id="planb">
+    <div class="section-num">10 — Plan B / Reduced Budget</div>
+    <h2 class="section-title">Atmosphere<br>Maintained</h2>
+
+    <div class="grid-2 spacer">
+      <div class="card">
+        <div class="card-label">Optimizations</div>
+        <ul class="optimization-list">
+          <li>More local DJs</li>
+          <li>Hybrid media format with Zoom participation</li>
+          <li>No festival merch production</li>
+          <li>Reduced production team costs</li>
+          <li>Preserve media partners and atmosphere at all costs</li>
+        </ul>
+      </div>
+      <div class="card music-highlight">
+        <div style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <span class="planb-old">€19,800</span>
+          <span class="planb-arrow">→</span>
+          <span class="planb-new">€8,500</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 14px; font-size: 16px; color: #c0c0b0;">
+          <div style="display: flex; justify-content: space-between;"><span>Venue + Tech</span><span>€4,500</span></div>
+          <div style="display: flex; justify-content: space-between;"><span>Local DJs & Speakers</span><span>€1,000</span></div>
+          <div style="display: flex; justify-content: space-between;"><span>Project Lead</span><span>€1,500</span></div>
+          <div style="display: flex; justify-content: space-between;"><span>Marketing</span><span>€1,000</span></div>
+          <div style="display: flex; justify-content: space-between;"><span>Security</span><span>€500</span></div>
+        </div>
+        <p style="margin-top: 28px; font-size: 14px; color: #c0c0b0; line-height: 1.7;">The audience experience remains strong — the industrial open atmosphere of Odonien becomes the core visual asset.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 PLAN C -->
+  <section id="planc">
+    <div class="section-num">11 — Plan C / Non-Profit Co-Production</div>
+    <h2 class="section-title">If No Grant<br>Succeeds —<br>The Project Lives</h2>
+
+    <div class="spacer">
+      <div class="card" style="margin-bottom: 20px;">
+        <h3 style="font-size: 24px; margin-bottom: 14px;">Pitch to the Venue</h3>
+        <p>Instead of requesting money, ZVAR proposes a non-commercial cultural partnership: providing the venue for one charitable Saturday supporting humanitarian aid for Ukraine.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3>Volunteer-Based Team</h3>
+          <p>Creative community, portfolio value and networking instead of commercial motivation.</p>
+        </div>
+        <div class="card">
+          <h3>Hybrid International Participation</h3>
+          <p>Editors and speakers join remotely from Kyiv through live projection.</p>
+        </div>
+        <div class="card">
+          <h3>Donation Economy</h3>
+          <p>Entry donations, bar donations and percentage-based brand contributions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 CHARITY -->
+  <section id="charity">
+    <div class="section-num">12 — Charity & Trust</div>
+    <h2 class="section-title">Transparency is<br>Core Identity</h2>
+
+    <div class="charity-pct">100%</div>
+    <p style="margin-top: 24px; font-size: 22px; max-width: 800px; line-height: 1.6; color: #d8d8c8;">
+      All festival donations are transferred directly to humanitarian support initiatives for Ukraine through Blau-Gelbes Kreuz e.V.
+    </p>
+
+    <a href="https://www.bgk-verein.de/" target="_blank" rel="noopener" class="bgk-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Blau-Gelbes Kreuz e.V.
+    </a>
+
+    <div class="grid-2" style="margin-top: 40px;">
+      <div class="card">
+        <h3>Financial Transparency</h3>
+        <p style="margin-top: 14px;">Public reporting, donation confirmation and documented transfer process after the event.</p>
+      </div>
+      <div class="card">
+        <h3>Cultural Impact</h3>
+        <p style="margin-top: 14px;">The project combines independent culture, charity and international dialogue in one accessible format.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 FINALE -->
+  <section id="finale">
+    <div class="section-num">13 — ZVAR 2027</div>
+    <div class="finale-title">ZVAR</div>
+    <p class="finale-sub">
+      Ukrainian energy × German industrial aesthetics × independent culture × charity.
+    </p>
+
+    <div class="tags-row" style="justify-content: center; margin-top: 48px;">
+      <div class="tag">Cologne</div>
+      <div class="tag">March 2027</div>
+    </div>
+  </section>
+
+  <footer>
+    <div>ZVAR Festival — Cologne 2027</div>
+    <div>Odonien · NRW · DE</div>
+  </footer>
+
+</div>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.07 });
+
+  document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+  document.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 30;
+    const y = (e.clientY / window.innerHeight - 0.5) * 30;
+    document.querySelector('.glow-topleft').style.transform = `translate(${x}px, ${y}px)`;
+  });
+
+  window.addEventListener('scroll', () => {
+    const hint = document.querySelector('.scroll-hint');
+    if (window.scrollY > 200) hint.style.opacity = '0';
+    else hint.style.opacity = '0.5';
+  }, { passive: true });
+</script>
+</body>
+</html>
